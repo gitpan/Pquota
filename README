@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
-Pquota version 1.0
+Pquota version 1.1
 --------------------------------------------------------------------------------
 
         This module is an attempt to provide an easy interface to a group
@@ -40,6 +40,15 @@ MLDBM recommend using something other than the default, so do I.
 
 
 --------------------------------------------------------------------------------
+CHANGES
+--------------------------------------------------------------------------------
+
+1.0 - 1.1:      - Added check for MLDBM in Makefile.PL
+                - Dumped IO::File, since we didn't need it
+                - Various performance tuning
+
+
+--------------------------------------------------------------------------------
 AUTHORS
 --------------------------------------------------------------------------------
 
@@ -48,6 +57,15 @@ http://www.cs.bu.edu/staff/TA/dbonner
 
 Scott Savarese <savarese@cs.bu.edu>
 http://www.cs.bu.edu/staff/TA/savarese
+
+
+--------------------------------------------------------------------------------
+THANKS
+--------------------------------------------------------------------------------
+
+Thanks to John Siracusa <siracusa@mindspring.com> for reminding us that it
+might behoove us to worry about performance, and for his list of modest
+suggestions.
 
 
 --------------------------------------------------------------------------------

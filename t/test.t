@@ -1,14 +1,21 @@
 use Test;
+
 BEGIN { plan tests => 5 }
 
 # first try to load it up and get pquota object
-eval { require "Pquota.pm";
-       $pquota = Pquota->new ("test"); };
-if ($@) {
-  ok(0); ok(0); ok(0);
-  exit(0);
+
+eval
+{
+  use Pquota;
+  $pquota = Pquota->new ("test");
+};
+
+if ($@)
+{
+  ok(0);ok(0);ok(0);ok(0);ok(0);
 }
-else {
+else
+{
   ok(1);
 }
 

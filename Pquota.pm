@@ -14,16 +14,15 @@
 package Pquota;
 
 # make CPAN happy
-$Pquota::VERSION = 1.0;
+$Pquota::VERSION = 1.1;
 
 use Fcntl;
 use MLDBM;
 use Carp;
-use IO::File;
 use strict;
 
 # constant for unlimited printer use
-sub UNLIMITED { return 23000000000000; }
+sub UNLIMITED { return 23000000; }
 
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>#
@@ -64,10 +63,7 @@ sub close {
 
 ##  adds a printer to the printers dbm
 sub printer_add {
-  my $self = shift;
-  my $printer = shift;
-  my $cost = shift;
-  my $dbm = shift;
+  my ($self, $printer, $cost, $dbm) = @_;
   my $entry = {};
 
   # sanity check
@@ -95,8 +91,7 @@ sub printer_add {
 
 ##  removes a printer from the printers dbm
 sub printer_rm {
-  my $self = shift;
-  my $printer = shift;
+  my ($self, $printer) = @_;
 
   # sanity check on the arg passed in
   unless ($printer) {
@@ -125,9 +120,7 @@ sub printer_rm {
 
 ##  changes the cost per page of the printer
 sub printer_set_cost {
-  my $self = shift;
-  my $printer = shift;
-  my $cost = shift;
+  my ($self, $printer, $cost) = @_;
   my $entry;
 
   # sanity check
@@ -160,8 +153,7 @@ sub printer_set_cost {
 
 ##  returns the cost per page of the printer
 sub printer_get_cost {
-  my $self = shift;
-  my $printer = shift;
+  my ($self, $printer) = @_;
   my $entry;
 
   # sanity check
@@ -202,9 +194,7 @@ sub printer_get_cost_list {
 
 ##  set the user database that a printer uses
 sub printer_set_user_database {
-  my $self = shift;
-  my $printer = shift;
-  my $dbm = shift;
+  my ($self, $printer, $dbm) = @_;
   my $entry;
 
   # sanity check
@@ -238,8 +228,7 @@ sub printer_set_user_database {
 
 ##  gets the user database for a printer
 sub printer_get_user_database {
-  my $self = shift;
-  my $printer = shift;
+  my ($self, $printer) = @_;
   my $entry;
 
   # sanity check
@@ -280,10 +269,7 @@ sub printer_get_user_database_list {
 
 ##  set an arbitrary field in a printer entry
 sub printer_set_field {
-  my $self = shift;
-  my $printer = shift;
-  my $key = shift;
-  my $val = shift;
+  my ($self, $printer, $key, $val) = @_;
   my $entry;
 
   # sanity check, allow for empty value, but not an undefined one
@@ -317,9 +303,7 @@ sub printer_set_field {
 
 ##  get an arbitrary field in a printer entry
 sub printer_get_field {
-  my $self = shift;
-  my $printer = shift;
-  my $key = shift;
+  my ($self, $printer, $key);
   my $entry;
 
   # sanity check
@@ -349,10 +333,7 @@ sub printer_get_field {
 
 ##  add user to a user dbm
 sub user_add {
-  my $self = shift;
-  my $user = shift;
-  my $dbm = shift;
-  my $periodic = shift;
+  my ($self, $user, $dbm, $periodic) = @_;
   my $entry = {};
 
   # sanity check
@@ -371,13 +352,6 @@ sub user_add {
     carp "Pquota::user_add:  $user already exists in the users database";
     return undef;
   }
-
-##  Commented out to allow for nt-only accounts to print
-  ### check to make sure it's a valid user account
-  ##unless (defined (getpwnam ($user))) {
-    ##carp "Pquota::user_add:  $user is not a valid user";
-    ##return undef;
-  ##}
 
   # set the default values for this user
   if ($periodic eq 'unlimited') {
@@ -403,9 +377,7 @@ sub user_add {
 
 ##  remove a user from a user database
 sub user_rm {
-  my $self = shift;
-  my $user = shift;
-  my $dbm = shift;
+  my ($self, $user, $dbm) = @_;
   
   # sanity check
   unless ($dbm && $user) {
@@ -439,12 +411,9 @@ sub user_rm {
 
 ##  mark the appropriate amount as having been printed
 sub user_print_pages {
-  my $self = shift;
-  my $user = shift;
-  my $printer = shift;
-  my $pages = shift;
-  my $err = 0;
+  my ($self, $user, $printer, $pages) = @_;
   my ($user_entry, $printer_entry, $cost);
+  my $err = 0;
 
   # make sure we were called correctly
   unless ($user && $printer && defined($pages)) {
@@ -504,10 +473,7 @@ sub user_print_pages {
 
 ##  adds to user's current quota
 sub user_add_to_current {
-  my $self = shift;
-  my $user = shift;
-  my $dbm = shift;
-  my $amt = shift;
+  my ($self, $user, $dbm, $amt) = @_;
   my $entry;
 
   # sanity check
@@ -548,10 +514,7 @@ sub user_add_to_current {
 
 ##  sets a new current value for a user
 sub user_set_current {
-  my $self = shift;
-  my $user = shift;
-  my $dbm = shift;
-  my $amt = shift;
+  my ($self, $user, $dbm, $amt) = @_;
   my $entry;
 
   # sanity check
@@ -595,9 +558,7 @@ sub user_set_current {
 
 ##  checks for the current quota of a specified user
 sub user_get_current_by_dbm {
-  my $self = shift;
-  my $user = shift;
-  my $dbm = shift;
+  my ($self, $user, $dbm) = @_;
   my $entry;
 
   # sanity check
@@ -626,9 +587,7 @@ sub user_get_current_by_dbm {
 
 ##  checks for the current quota of a specified user
 sub user_get_current_by_printer {
-  my $self = shift;
-  my $user = shift;
-  my $printer = shift;
+  my ($self, $user, $printer) = @_;
   my ($entry, $dbm);
 
   # sanity check
@@ -662,9 +621,7 @@ sub user_get_current_by_printer {
 
 ##  resets the current value to the periodic value
 sub user_reset_current {
-  my $self = shift;
-  my $user = shift;
-  my $dbm = shift;
+  my ($self, $user, $dbm) = @_;
   my $entry;
 
   # sanity check
@@ -706,10 +663,7 @@ sub user_reset_current {
 
 ##  adds to user's periodic quota
 sub user_add_to_periodic {
-  my $self = shift;
-  my $user = shift;
-  my $dbm = shift;
-  my $amt = shift;
+  my ($self, $user, $dbm, $amt) = @_;
   my $entry;
 
   # sanity check
@@ -750,10 +704,7 @@ sub user_add_to_periodic {
 
 ##  sets a new quota value for a user
 sub user_set_periodic {
-  my $self = shift;
-  my $user = shift;
-  my $dbm = shift;
-  my $amt = shift;
+  my ($self, $user, $dbm, $amt) = @_;
   my $entry;
 
   # sanity check
@@ -798,9 +749,7 @@ sub user_set_periodic {
 
 ##  checks for the periodic quota of a specified user
 sub user_get_periodic {
-  my $self = shift;
-  my $user = shift;
-  my $dbm = shift;
+  my ($self, $user, $dbm) = @_;
   my $entry;
 
   # sanity check
@@ -829,9 +778,7 @@ sub user_get_periodic {
 
 ##  resets out the total quota
 sub user_reset_total {
-  my $self = shift;
-  my $user = shift;
-  my $dbm = shift;
+  my ($self, $user, $dbm) = @_;
   my $entry;
 
   # sanity check
@@ -873,11 +820,7 @@ sub user_reset_total {
 
 ##  set an arbitrary field in a user's record
 sub user_set_field {
-  my $self = shift;
-  my $user = shift;
-  my $dbm = shift;
-  my $key = shift;
-  my $val = shift;
+  my ($self, $user, $dbm, $key, $val) = @_;
   my $entry;
 
   # sanity check, allow for empty value, but not an undefined one
@@ -914,10 +857,7 @@ sub user_set_field {
 
 ##  get an arbitrary field in a user's record
 sub user_get_field {
-  my $self = shift;
-  my $user = shift;
-  my $dbm = shift;
-  my $key = shift;
+  my ($self, $user, $dbm, $key) = @_;
   my $entry;
 
   # sanity check
@@ -951,9 +891,7 @@ sub user_get_field {
 
 ## object initialization
 sub _init {
-  my $self = shift;
-  my $quotadir = shift;
-  my $db_opts = shift;
+  my ($self, $quotadir, $db_opts) = @_;
 
   # sanity check on passed argument
   unless (-d $quotadir) {
@@ -985,9 +923,8 @@ sub _init {
 
 ##  open a dbm file
 sub _open_dbm {
-  my $self = shift;
-  my $dbm = shift;
-  my ($options);
+  my ($self, $dbm) = @_;
+  my $options;
 
   # return immediately if it already exists
   if (defined ($self->{'dbms'}{$dbm})) {
@@ -1010,17 +947,16 @@ sub _open_dbm {
 
 ##  get exclusive access to a lock file before changing the dbm
 sub _get_lock {
-  my $self = shift;
-  my $dbm = shift;
+  my ($self, $dbm) = @_;
   my ($file, $fh);
 
   # get a file handle to open the lock file
-  unless ($fh = new IO::File) {
+  unless ($fh = eval { local *FH }) {
     croak "Pquota::_get_lock:  Internal error:  $!\n";
   }
 
   # wait until I get to open the lock file
-  $file = $self->{'quotadir'}.'/'.$dbm.'.lock';
+  $file = "$self->{'quotadir'}/$dbm.lock";
   while (!(sysopen ($fh, $file, O_RDWR|O_CREAT|O_EXCL, 0644))) { }
 
   # store the file handle so I can close it later
@@ -1032,13 +968,12 @@ sub _get_lock {
 
 ##  close the lock file and remove it from the directory
 sub _release_lock {
-  my $self = shift;
-  my $dbm = shift;
+  my ($self, $dbm) = @_;
   my $file;
 
   # close the file, then unlink it
   CORE::close ($self->{"lock"});
-  $file = $self->{'quotadir'}.'/'.$dbm.'.lock';
+  $file = "$self->{'quotadir'}/$dbm.lock";
   unlink $file;
   delete $self->{"lock"};
 
